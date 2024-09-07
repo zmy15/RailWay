@@ -5,7 +5,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 # 查询火车站信息的函数
-def Query_information(station_name):  # 导入编码后的 JSON 数据
+def Query_information(station_name): 
 
     with open("station_telecodes.json", "r", encoding="utf-8") as f:
         station_telecodes = json.load(f)
@@ -58,7 +58,6 @@ class Ui_Dialog(QtWidgets.QDialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(903, 706)
 
-        # 启用最大化和最小化按钮
         Dialog.setWindowFlags(Dialog.windowFlags() | QtCore.Qt.WindowType.WindowMinMaxButtonsHint)
 
         # 创建主垂直布局
@@ -146,7 +145,6 @@ class Ui_Dialog(QtWidgets.QDialog):
             for col_idx, item in enumerate(row_data):
                 table_item = QtWidgets.QTableWidgetItem(item)
 
-                # 检查特定条件，例如当车次等于特定值时，将文字设为红色
                 if col_idx == 5 and item.startswith("晚点") or item.startswith("停止"):
                     table_item.setForeground(QtGui.QColor("red"))
                 if col_idx == 5 and item.startswith("早点") or item.startswith("正在"):

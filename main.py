@@ -3,17 +3,17 @@ import json
 import base64
 import requests
 from Query_train_info import Query_train_info
-from encoded_station_telecode import encoded_json
+# from encoded_station_telecode import encoded_json
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 # 查询火车站信息的函数
 def Query_information(station_name):
-    decoded_data = base64.b64decode(encoded_json.encode('utf-8')).decode('utf-8')
-    station_telecodes = json.loads(decoded_data)
+    # decoded_data = base64.b64decode(encoded_json.encode('utf-8')).decode('utf-8')
+    # station_telecodes = json.loads(decoded_data)
 
-    # with open("station_telecodes.json", "r", encoding="utf-8") as f:
-    #     station_telecodes = json.load(f)
+    with open("station_telecodes.json", "r", encoding="utf-8") as f:
+        station_telecodes = json.load(f)
 
     station_telecode = station_telecodes.get(station_name, "null")
 

@@ -1,14 +1,15 @@
 import datetime
 import json
 import requests
+from Query_train_info import Query_train_info
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 # 查询火车站信息的函数
-def Query_information(station_name): 
-
+def Query_information(station_name):
     with open("station_telecodes.json", "r", encoding="utf-8") as f:
         station_telecodes = json.load(f)
+
     station_telecode = station_telecodes.get(station_name, "null")
 
     json_data = {
@@ -52,11 +53,62 @@ def Query_information(station_name):
     return data
 
 
-# PyQt6 GUI 类
+class TrainInfoDialog(QtWidgets.QDialog):
+    def __init__(self, train_info, train_code, parent=None):
+        super().__init__(parent)
+        self.train_code = train_code
+        self.train_info = train_info
+        self.setupUi(self.train_code)
+
+    def setupUi(self, train_code):
+        self.setWindowTitle(f"{train_code} 信息")
+        self.resize(400, 400)
+
+        # 创建主布局
+        main_layout = QtWidgets.QVBoxLayout(self)
+
+        # 创建 QScrollArea
+        scroll_area = QtWidgets.QScrollArea(self)
+        scroll_area.setWidgetResizable(True)  # 设置自适应窗口大小
+        main_layout.addWidget(scroll_area)
+
+        # 创建内容窗口
+        content_widget = QtWidgets.QWidget()
+        scroll_layout = QtWidgets.QVBoxLayout(content_widget)
+
+        # 显示车次信息
+        for key, value in list(self.train_info.items())[:-1]:
+            label = QtWidgets.QLabel(f"{key}: {value}", parent=content_widget)
+            scroll_layout.addWidget(label)
+
+        # 添加停站信息标题
+        label = QtWidgets.QLabel("停站信息:", parent=content_widget)
+        scroll_layout.addWidget(label)
+
+        # 横向排列每组停站信息
+        for station_info in self.train_info["停站信息"]:
+            # 创建一个横向布局用于每组信息
+            h_layout = QtWidgets.QHBoxLayout()
+
+            # 将停站信息横向排列
+            for key, value in station_info.items():
+                label = QtWidgets.QLabel(f"{key}: {value}", parent=content_widget)
+                h_layout.addWidget(label)
+
+            # 将每个横向布局添加到垂直布局中
+            scroll_layout.addLayout(h_layout)
+
+        # 将内容窗口设置为 scroll_area 的 widget
+        scroll_area.setWidget(content_widget)
+
+        # 将主布局设置到窗口
+        self.setLayout(main_layout)
+
+
 class Ui_Dialog(QtWidgets.QDialog):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(903, 706)
+        Dialog.resize(900, 700)
 
         Dialog.setWindowFlags(Dialog.windowFlags() | QtCore.Qt.WindowType.WindowMinMaxButtonsHint)
 
@@ -102,6 +154,7 @@ class Ui_Dialog(QtWidgets.QDialog):
 
         # 连接按钮点击事件
         self.pushButton.clicked.connect(self.on_click)
+        self.tableWidget.cellClicked.connect(self.on_table_click)
 
         # 设置主布局
         self.retranslateUi(Dialog)
@@ -151,6 +204,20 @@ class Ui_Dialog(QtWidgets.QDialog):
                     table_item.setForeground(QtGui.QColor("green"))
 
                 self.tableWidget.setItem(row_idx, col_idx, table_item)
+
+    def on_table_click(self, row, column):
+        if column == 0:  # 如果点击的是车次列
+            train_code = self.tableWidget.item(row, column).text()
+            train_info = Query_train_info(train_code)  # 查询车次详细信息
+            self.show_train_info_dialog(train_info, train_code)
+
+    def show_train_info_dialog(self, train_info, train_code):
+        try:
+            dialog = TrainInfoDialog(train_info, train_code, self)
+            dialog.exec()
+        except Exception as e:
+            print(114514)
+            print(e)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate

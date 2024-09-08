@@ -11,3 +11,23 @@ _通过调用API来查询国铁车次信息的小程序_
 
 
 查询车次信息
+
+
+**使用方法：**
+
+
+1、windows系统可直接从Releases下载
+
+
+2、下载或克隆本项目到本地，安装依赖
+
+
+```shell
+pip install -r requirements.txt
+```
+
+
+运行
+```shell
+python main.py
+```

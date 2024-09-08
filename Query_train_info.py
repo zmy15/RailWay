@@ -53,7 +53,7 @@ def Query_train_info(train_code) -> dict:
         mealCoach = trainsetTypeInfo["mealCoach"]
         coachCount = trainsetTypeInfo["coachCount"] + "节"
         datas.setdefault("车辆全长", fullLength)
-        datas.setdefault("标尺速度", currentSpeed)
+        datas.setdefault("最高速度", currentSpeed)
         datas.setdefault("车辆组成", coachOrganization)
         datas.setdefault("定员", capacity)
         datas.setdefault("餐车", mealCoach)
@@ -64,23 +64,26 @@ def Query_train_info(train_code) -> dict:
     stop_inf = []
     stop_dict = {}
     # 遍历并打印停靠站点信息
-    for stop in stop_times:
-        station = stop['stationName']
-        arrive_time = Format_time(stop['arriveTime'])
-        start_time = Format_time(stop['startTime'])
-        stopover_time = stop['stopover_time'] + "分"
-        stop_dict.setdefault("站点", station)
-        stop_dict.setdefault("到达时间", arrive_time)
-        stop_dict.setdefault("发车时间", start_time)
-        stop_dict.setdefault("停留时间", stopover_time)
-        stop_inf.append(stop_dict)
-        stop_dict = {}
-    datas.setdefault("停站信息", stop_inf)
+    try:
+        for stop in stop_times:
+            station = stop['stationName']
+            arrive_time = Format_time(stop['arriveTime'])
+            start_time = Format_time(stop['startTime'])
+            stopover_time = stop['stopover_time'] + "分"
+            stop_dict.setdefault("站点", station)
+            stop_dict.setdefault("到达时间", arrive_time)
+            stop_dict.setdefault("发车时间", start_time)
+            stop_dict.setdefault("停留时间", stopover_time)
+            stop_inf.append(stop_dict)
+            stop_dict = {}
+        datas.setdefault("停站信息", stop_inf)
+    except Exception:
+        pass
     return datas
 
 
 if __name__ == "__main__":
-    train_info = Query_train_info("G1201")
+    train_info = Query_train_info("G8951")
     for key, value in list(train_info.items())[:-1]:
         print(f"{key}: {value}")
     for i in train_info["停站信息"]:

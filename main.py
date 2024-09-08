@@ -1,14 +1,19 @@
 import datetime
 import json
+import base64
 import requests
 from Query_train_info import Query_train_info
+from encoded_station_telecode import encoded_json
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 # 查询火车站信息的函数
 def Query_information(station_name):
-    with open("station_telecodes.json", "r", encoding="utf-8") as f:
-        station_telecodes = json.load(f)
+    decoded_data = base64.b64decode(encoded_json.encode('utf-8')).decode('utf-8')
+    station_telecodes = json.loads(decoded_data)
+
+    # with open("station_telecodes.json", "r", encoding="utf-8") as f:
+    #     station_telecodes = json.load(f)
 
     station_telecode = station_telecodes.get(station_name, "null")
 
@@ -100,9 +105,17 @@ class TrainInfoDialog(QtWidgets.QDialog):
 
         # 将内容窗口设置为 scroll_area 的 widget
         scroll_area.setWidget(content_widget)
-
         # 将主布局设置到窗口
         self.setLayout(main_layout)
+
+
+def show_error(message):
+    msg_box = QtWidgets.QMessageBox()
+    msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+    msg_box.setWindowTitle("错误")
+    msg_box.setText(message)
+    msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
+    msg_box.exec()
 
 
 class Ui_Dialog(QtWidgets.QDialog):
@@ -178,18 +191,9 @@ class Ui_Dialog(QtWidgets.QDialog):
                 result = Query_information(station_name)
                 self.display_data(result)
             except Exception as e:
-                self.show_error(f"获取数据时出错: {str(e)}")
+                show_error(f"获取数据时出错: {str(e)}")
         else:
-            self.show_error("请输入车站名称！")
-
-    # 弹出错误信息框
-    def show_error(self, message):
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
-        msg_box.setWindowTitle("错误")
-        msg_box.setText(message)
-        msg_box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Ok)
-        msg_box.exec()
+            show_error("请输入车站名称！")
 
     # 在表格中显示数据
     def display_data(self, data):
@@ -209,15 +213,14 @@ class Ui_Dialog(QtWidgets.QDialog):
         if column == 0:  # 如果点击的是车次列
             train_code = self.tableWidget.item(row, column).text()
             train_info = Query_train_info(train_code)  # 查询车次详细信息
-            self.show_train_info_dialog(train_info, train_code)
+            if train_info:
+                self.show_train_info_dialog(train_info, train_code)
+            else:
+                show_error("暂无车次信息！")
 
     def show_train_info_dialog(self, train_info, train_code):
-        try:
-            dialog = TrainInfoDialog(train_info, train_code, self)
-            dialog.exec()
-        except Exception as e:
-            print(114514)
-            print(e)
+        dialog = TrainInfoDialog(train_info, train_code, self)
+        dialog.exec()
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate

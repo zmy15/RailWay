@@ -1,5 +1,6 @@
 import datetime
 import json
+import re
 import base64
 import requests
 from Query_train_info import Query_train_info
@@ -186,14 +187,21 @@ class Ui_Dialog(QtWidgets.QDialog):
 
     def on_click(self):
         station_name = self.station_input.text()
-        if station_name:
+        if not bool(re.match(r'^[a-zA-Z0-9]', station_name)):
             try:
                 result = Query_information(station_name)
                 self.display_data(result)
             except Exception as e:
                 show_error(f"获取数据时出错: {str(e)}")
         else:
-            show_error("请输入车站名称！")
+            try:
+                train_info = Query_train_info(station_name)
+                if train_info:
+                    self.show_train_info_dialog(train_info, station_name)
+                else:
+                    show_error("暂无车次信息！")
+            except Exception as e:
+                show_error(f"获取数据时出错: {str(e)}")
 
     # 在表格中显示数据
     def display_data(self, data):
@@ -226,7 +234,7 @@ class Ui_Dialog(QtWidgets.QDialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "火车站大屏查询"))
         self.title.setText(_translate("Dialog", "火车站大屏查询"))
-        self.station_name.setText(_translate("Dialog", "车站："))
+        self.station_name.setText(_translate("Dialog", "车站/车次："))
         self.pushButton.setText(_translate("Dialog", "查询"))
 
 

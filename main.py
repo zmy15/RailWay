@@ -28,8 +28,6 @@ def Query_information(station_name):
 
     res = requests.post("https://tripapi.ccrgt.com/crgt/trip-server-app/screen/getStationScreenByStationCode",
                         json=json_data).json()
-    with open("res.json", "w") as f:
-        json.dump(res, f, indent=4, ensure_ascii=False)
 
     data = []
     lists = res["data"]["list"]

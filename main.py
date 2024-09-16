@@ -28,6 +28,8 @@ def Query_information(station_name):
 
     res = requests.post("https://tripapi.ccrgt.com/crgt/trip-server-app/screen/getStationScreenByStationCode",
                         json=json_data).json()
+    with open("res.json", "w") as f:
+        json.dump(res, f, indent=4, ensure_ascii=False)
 
     data = []
     lists = res["data"]["list"]
@@ -37,22 +39,26 @@ def Query_information(station_name):
         startStation = list["startStation"]
         endStation = list["endStation"]
         wicket = list["wicket"]
-        status = int(list["status"])
-        if status == 1:
-            if list["delay"] < 0:
-                delay = str(abs(list["delay"]))
-                status = "早点" + delay + "分"
-            else:
-                status = "正点"
-        elif status == 2:
-            status = "正在检票"
-        elif status == 3:
-            status = "停止检票"
-        elif status == 5:
-            delay = str(list["delay"])
-            status = "晚点" + delay + "分"
+        stop = list["stop"]
+        if stop:
+            status = list["stopTitle"]
         else:
-            status = "--"
+            status = int(list["status"])
+            if status == 1:
+                if list["delay"] < 0:
+                    delay = str(abs(list["delay"]))
+                    status = "早点" + delay + "分"
+                else:
+                    status = "正点"
+            elif status == 2:
+                status = "正在检票"
+            elif status == 3:
+                status = "停止检票"
+            elif status == 5:
+                delay = str(list["delay"])
+                status = "晚点" + delay + "分"
+            else:
+                status = "--"
         startTime = datetime.datetime.fromtimestamp(startDepartTime).strftime('%Y-%m-%d %H:%M:%S')
         data.append([trainCode, startStation, endStation, startTime, wicket, status])
 
@@ -210,7 +216,7 @@ class Ui_Dialog(QtWidgets.QDialog):
             for col_idx, item in enumerate(row_data):
                 table_item = QtWidgets.QTableWidgetItem(item)
 
-                if col_idx == 5 and item.startswith("晚点") or item.startswith("停止"):
+                if col_idx == 5 and item.startswith("晚点") or item.startswith("停止") or item.endswith("停运"):
                     table_item.setForeground(QtGui.QColor("red"))
                 if col_idx == 5 and item.startswith("早点") or item.startswith("正在"):
                     table_item.setForeground(QtGui.QColor("green"))

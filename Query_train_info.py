@@ -1,6 +1,5 @@
 import requests
 import datetime
-import json
 
 
 def Format_time(time) -> str:
@@ -12,15 +11,13 @@ def Format_date(date) -> str:
 
 
 def Query_train_info(train_code) -> dict:
+    train_code = train_code.upper()
     startDay = datetime.date.today().strftime("%Y%m%d")
     data = {
         "trainCode": train_code,
         "startDay": startDay
     }
     res = requests.post("https://mobile.12306.cn/wxxcx/wechat/main/travelServiceQrcodeTrainInfo", data=data).json()
-
-    # with open("res.json", "w") as f:
-    #     json.dump(res, f, indent=4, ensure_ascii=False)
 
     datas = {}
     try:
@@ -80,12 +77,3 @@ def Query_train_info(train_code) -> dict:
     except Exception:
         pass
     return datas
-
-
-if __name__ == "__main__":
-    train_info = Query_train_info("G8951")
-    for key, value in list(train_info.items())[:-1]:
-        print(f"{key}: {value}")
-    for i in train_info["停站信息"]:
-        for key, value in i.items():
-            print(f"{key}: {value}")

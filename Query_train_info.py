@@ -1,5 +1,6 @@
 import requests
 import datetime
+from api import API
 
 
 def Format_time(time) -> str:
@@ -17,7 +18,7 @@ def Query_train_info(train_code) -> dict:
         "trainCode": train_code,
         "startDay": startDay
     }
-    res = requests.post("https://mobile.12306.cn/wxxcx/wechat/main/travelServiceQrcodeTrainInfo", data=data).json()
+    res = requests.post(API.api_12306, data=data).json()
 
     datas = {}
     try:
@@ -60,7 +61,6 @@ def Query_train_info(train_code) -> dict:
 
     stop_inf = []
     stop_dict = {}
-    # 遍历并打印停靠站点信息
     try:
         for stop in stop_times:
             station = stop['stationName']
